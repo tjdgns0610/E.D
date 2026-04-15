@@ -141,3 +141,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+with st.sidebar:
+    st.header("⚙️ 내 정보 설정")
+    st.write("여기에 내 체형이나 선호 스타일을 미리 입력해둘 수 있습니다.")
+    st.button("로그아웃")
