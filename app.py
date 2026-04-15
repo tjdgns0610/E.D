@@ -125,4 +125,24 @@ def main_app():
             uploaded_image = st.file_uploader("사진 업로드", type=['png', 'jpg'])
 
         if uploaded_image is not None:
-            st.
+            st.image(uploaded_image, width=200)
+            with st.form("add_item_form", border=True):
+                new_name = st.text_input("아이템 애칭", "새로 산 옷")
+                new_category = st.selectbox("카테고리", ["상의", "하의", "아우터", "신발", "액세서리"])
+                new_color = st.selectbox("메인 색상", ["White", "Black", "Gray", "Navy", "Beige", "Blue", "Red"])
+                new_thick = st.slider("두께감 (1:여름용, 2:사계절, 3:겨울용)", 1, 3, 2)
+                if st.form_submit_button("내 옷장에 쏙! 저장하기", type="primary", use_container_width=True):
+                    new_item = pd.DataFrame({'category': [new_category], 'name': [new_name], 'thickness': [new_thick], 'color': [new_color]})
+                    st.session_state.closet_df = pd.concat([st.session_state.closet_df, new_item], ignore_index=True)
+                    st.success("등록 완료!")
+
+    with tab3:
+        st.subheader("🗄️ 내 옷장 데이터베이스")
+        st.dataframe(st.session_state.closet_df, use_container_width=True, hide_index=True)
+
+# --- 5. 앱 라우팅 ---
+if st.session_state.logged_in:
+    main_app()
+else:
+    login_screen()
+    
