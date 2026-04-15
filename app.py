@@ -47,14 +47,12 @@ def main():
     st.title("👗 AI 스마트 옷장 & 다이렉트 샵")
     temp = get_current_weather()
     st.subheader(f"현재 화순군 기온: {temp}°C | ☀️ 오늘은 시원한 코디가 좋겠네요!")
-
-    # 가상의 내 옷장 데이터 (DB 대용)
-    closet_data = {
-        'category': ['상의', '상의', '하의', '하의', '상의'],
-        'name': ['오버핏 린넨 셔츠', '두꺼운 기모 후드', '와이드 치노 팬츠', '청바지', '화이트 반팔 티'],
-        'thickness': [1, 3, 1, 2, 1],
-        'color': ['Sky Blue', 'Gray', 'Beige', 'Blue', 'White']
-    }
+closet_data = {
+    'category': ['상의', '하의', '아우터', '하의', '상의'],
+    'name': ['검정색 무지 맨투맨', '회색 조거팬츠', '바람막이 자켓', '연청 데님', '스트라이프 셔츠'],
+    'thickness': [2, 2, 1, 2, 1], 
+    'color': ['Black', 'Gray', 'Black', 'Light Blue', 'Navy']
+}
     df_closet = pd.DataFrame(closet_data)
 
     # 메인 레이아웃 (2단 구성)
