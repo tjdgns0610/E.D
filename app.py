@@ -145,3 +145,7 @@ with st.sidebar:
     st.header("⚙️ 내 정보 설정")
     st.write("여기에 내 체형이나 선호 스타일을 미리 입력해둘 수 있습니다.")
     st.button("로그아웃")
+with st.expander("👉 기상청 실시간 날씨 데이터 자세히 보기"):
+    st.write("현재 풍속: 2.5m/s")
+    st.write("오늘 강수 확률: 0%")
+    st.write("미세먼지: 좋음")
