@@ -12,7 +12,6 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* E.D 타이틀 로고 */
     .ed-title {
         font-size: 80px !important;
         font-weight: 900;
@@ -21,9 +20,8 @@ st.markdown("""
         letter-spacing: -5px;
     }
     
-    /* 하단 버튼을 동그랗고 예쁘게 만드는 CSS */
     .stButton > button {
-        border-radius: 30px; /* 버튼을 둥글게 */
+        border-radius: 30px;
         height: 60px;
         font-size: 16px;
         font-weight: bold;
@@ -31,18 +29,16 @@ st.markdown("""
         transition: all 0.3s ease;
     }
     .stButton > button:hover {
-        transform: translateY(-2px); /* 마우스 올리면 살짝 뜸 */
+        transform: translateY(-2px);
         border-color: black;
         color: black;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. 상태 관리 (데이터 & 페이지 기억) ---
+# --- 2. 상태 관리 ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
-
-# [NEW!] 현재 어떤 화면에 있는지 기억하는 변수
 if 'current_page' not in st.session_state:
     st.session_state.current_page = '홈'
 
@@ -99,44 +95,69 @@ def login_screen():
                 st.session_state.logged_in = True
                 st.rerun()
 
-# --- 5. 메인 앱 (페이지 라우팅 및 하단 네비게이션) ---
+# --- 5. 메인 앱 화면 ---
 def main_app():
-    # 5-1. 현재 선택된 페이지의 내용을 먼저 보여줍니다.
+    # [상단 헤더 영역] 어느 페이지에 있든 로고가 작게 보이도록 디테일 추가
+    st.markdown("<h2 style='text-align: center; margin-top: -20px;'>E.D</h2>", unsafe_allow_html=True)
+    
     if st.session_state.current_page == '홈':
-        st.subheader("🏠 E.D 투데이 픽")
+        st.write("#### 👋 안녕하세요, 민경 님!")
+        st.caption("민경 님의 완벽한 하루를 위해 준비한 투데이 픽입니다.")
         temp = get_current_weather()
         recommendations = recommend_logic(st.session_state.closet_df, temp)
+        
         if recommendations is not None:
             top_pick = recommendations.iloc[0]
             with st.container(border=True):
-                st.metric("Perfect Match Score", f"{top_pick['score']} / 100")
-                st.write(f"👕 **{top_pick['name_top']}**")
-                st.write(f"👖 **{top_pick['name_bottom']}**")
-                st.write(f"👟 **{top_pick['name_shoe']}**")
+                st.metric("✨ Perfect Match Score", f"{top_pick['score']} / 100", "현재 화순군 날씨에 최적화됨")
+                st.write(f"👕 **상의:** {top_pick['name_top']} ({top_pick['color_top']})")
+                st.write(f"👖 **하의:** {top_pick['name_bottom']} ({top_pick['color_bottom']})")
+                st.write(f"👟 **신발:** {top_pick['name_shoe']} ({top_pick['color_shoe']})")
         else:
             st.warning("옷이 부족합니다. 새 옷을 등록해주세요!")
             
         st.write("---")
-        st.subheader("🖤 무신사 추천 아이템")
+        st.write("#### 🖤 E.D x 무신사 추천")
         with st.container(border=True):
             st.image("https://image.msscdn.net/mfile_s01/2021/08/26/104111/1418701.jpg", caption="[무신사 스탠다드] 릴렉스 핏 반팔 티셔츠")
             st.link_button("무신사에서 바로 구매하기 🛒", url="https://www.musinsa.com", type="primary", use_container_width=True)
 
     elif st.session_state.current_page == '날씨':
-        st.subheader("⛅ 오늘의 날씨 브리핑")
+        st.write("#### ⛅ 시간대별 날씨 브리핑")
         temp = get_current_weather()
+        
         col_w1, col_w2, col_w3 = st.columns(3)
         col_w1.metric("📍 화순군 기온", f"{temp} °C", "어제보다 2°C 높음")
         col_w2.metric("💧 강수 확률", "0 %")
         col_w3.metric("😷 미세먼지", "좋음")
-        st.info("💡 **E.D 코멘트:** 오늘은 야외 활동하기 좋은 날씨입니다. 가벼운 외투나 반팔을 추천합니다!")
+        
+        # [NEW!] 시간대별 기온 그래프 디테일 추가
+        st.write("##### 📈 오늘 하루 기온 변화")
+        weather_data = pd.DataFrame({
+            '시간': ['09:00', '12:00', '15:00', '18:00', '21:00'],
+            '기온(°C)': [18, 24, 26.5, 22, 19]
+        }).set_index('시간')
+        st.area_chart(weather_data)
+        
+        st.info("💡 **E.D 코멘트:** 낮에는 덥지만 저녁에는 쌀쌀해집니다. 가벼운 아우터를 하나 챙기시는 것을 권장합니다.")
 
     elif st.session_state.current_page == '옷장':
-        st.subheader("🗄️ 내 옷장 데이터베이스")
+        st.write("#### 🗄️ 내 옷장 데이터베이스")
+        st.caption(f"현재 총 {len(st.session_state.closet_df)}개의 아이템이 등록되어 있습니다.")
+        
+        # [NEW!] 옷장 요약 디테일
+        col_stat1, col_stat2 = st.columns(2)
+        with col_stat1:
+            st.write("**카테고리별 비중**")
+            st.bar_chart(st.session_state.closet_df['category'].value_counts())
+        with col_stat2:
+            st.write("**컬러별 비중**")
+            st.bar_chart(st.session_state.closet_df['color'].value_counts())
+            
         st.dataframe(st.session_state.closet_df, use_container_width=True, hide_index=True)
 
     elif st.session_state.current_page == '등록':
-        st.subheader("📸 새 아이템 등록하기")
+        st.write("#### 📸 새 아이템 등록하기")
         upload_mode = st.radio("업로드 방식", ["카메라", "갤러리"], horizontal=True)
         if upload_mode == "카메라":
             uploaded_image = st.camera_input("카메라 실행")
@@ -148,17 +169,16 @@ def main_app():
             with st.form("add_item_form", border=True):
                 new_name = st.text_input("아이템 애칭", "새로 산 옷")
                 new_category = st.selectbox("카테고리", ["상의", "하의", "아우터", "신발", "액세서리"])
-                new_color = st.selectbox("메인 색상", ["White", "Black", "Gray"])
+                new_color = st.selectbox("메인 색상", ["White", "Black", "Gray", "Navy", "Beige"])
                 new_thick = st.slider("두께감 (1:여름, 3:겨울)", 1, 3, 2)
                 if st.form_submit_button("저장하기", type="primary", use_container_width=True):
                     new_item = pd.DataFrame({'category': [new_category], 'name': [new_name], 'thickness': [new_thick], 'color': [new_color]})
                     st.session_state.closet_df = pd.concat([st.session_state.closet_df, new_item], ignore_index=True)
                     st.success("등록 완료!")
 
-    # 5-2. 화면 맨 아래에 하단 네비게이션 바(동그란 버튼 4개) 생성
-    st.write("<br><br>", unsafe_allow_html=True) # 위 콘텐츠와 간격 띄우기
+    # --- 하단 네비게이션 바 ---
+    st.write("<br><br><br>", unsafe_allow_html=True) 
     st.divider()
-    
     col_nav1, col_nav2, col_nav3, col_nav4 = st.columns(4)
     with col_nav1:
         if st.button("🏠 홈", use_container_width=True):
